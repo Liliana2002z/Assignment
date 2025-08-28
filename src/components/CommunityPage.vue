@@ -2,8 +2,8 @@
   <div class="container my-5">
     <div class="row">
       <div class="col-12 text-center">
-        <h2>社区论坛</h2>
-        <p class="lead">分享你的故事，连接志同道合的人。</p>
+        <h2>Community</h2>
+        <p class="lead">Share your stories, link with interests.</p>
       </div>
     </div>
 
@@ -15,10 +15,10 @@
             <p class="card-text">{{ post.content }}</p>
             <div class="d-flex justify-content-between align-items-center mt-3">
               <div class="text-muted">
-                点赞: {{ post.likes }} | 评论: {{ post.comments }}
+                Likes: {{ post.likes }} | Comments: {{ post.comments }}
               </div>
               <div class="text-end">
-                <strong>聚合评分: {{ post.rating }}</strong>
+                <strong>Scores: {{ post.rating }}</strong>
               </div>
             </div>
             </div>
@@ -36,21 +36,21 @@ const communityPosts = ref([
   {
     id: 1,
     author: 'Alex',
-    content: '最近学业压力有点大，但是听音乐让我放松了许多。',
+    content: 'I have tons of study pressure, but listening to music helps a lot.',
     likes: 5,
     comments: 2
   },
   {
     id: 2,
     author: 'Chloe',
-    content: '很高兴能在这里帮助大家，分享正能量是我的目标！',
+    content: 'Glad to be here to help, my aim is to share positive energy!',
     likes: 12,
     comments: 5
   },
   {
     id: 3,
-    author: '匿名用户',
-    content: '第一次在这里发帖，感觉这里很安全，没有评判。',
+    author: 'Nobody',
+    content: 'First post here, feel safe and no judgement.',
     likes: 8,
     comments: 3
   }

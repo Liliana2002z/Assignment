@@ -3,34 +3,34 @@
     <div class="row">
       <div class="col-md-6 mx-auto">
         <div class="card p-4 shadow-sm">
-          <h2 class="card-title text-center">用户登录</h2>
+          <h2 class="card-title text-center">UserLogin</h2>
 
           <form @submit.prevent="handleLogin">
             <div class="mb-3">
-              <label for="loginEmail" class="form-label">邮箱</label>
+              <label for="loginEmail" class="form-label">Email</label>
               <input 
                 type="email" 
                 class="form-control" 
                 id="loginEmail" 
                 v-model="loginForm.email" 
                 required
-                aria-label="输入您的注册邮箱"
+                aria-label="Key your register Email"
               >
             </div>
             
             <div class="mb-3">
-              <label for="loginPassword" class="form-label">密码</label>
+              <label for="loginPassword" class="form-label">Password</label>
               <input 
                 type="password" 
                 class="form-control" 
                 id="loginPassword" 
                 v-model="loginForm.password" 
                 required
-                aria-label="输入您的密码"
+                aria-label="Key your password"
               >
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">登录</button>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
           </form>
         </div>
       </div>

@@ -2,33 +2,33 @@
   <div>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">FIT5032</a>
+        <a class="navbar-brand" href="#">HearYou</a>
         <div class="collapse navbar-collapse">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <router-link to="/" class="nav-link">主页</router-link>
+              <router-link to="/" class="nav-link">Homepage</router-link>
             </li>
 
             <li class="nav-item" v-if="!user.isLoggedIn">
-              <router-link to="/login" class="nav-link">登录</router-link>
+              <router-link to="/login" class="nav-link">Login</router-link>
             </li>
             <li class="nav-item" v-if="!user.isLoggedIn">
-              <router-link to="/register" class="nav-link">注册</router-link>
+              <router-link to="/register" class="nav-link">Register</router-link>
             </li>
             
             <li class="nav-item" v-if="user.isLoggedIn">
-              <router-link to="/profile" class="nav-link">用户资料</router-link>
+              <router-link to="/profile" class="nav-link">UserMessage</router-link>
             </li>
             <li class="nav-item" v-if="user.isLoggedIn">
-              <router-link to="/community" class="nav-link">社区</router-link>
+              <router-link to="/community" class="nav-link">Community</router-link>
             </li>
             <li class="nav-item" v-if="user.isLoggedIn">
-              <a href="#" @click.prevent="logout" class="nav-link">登出</a>
+              <a href="#" @click.prevent="logout" class="nav-link">Logout</a>
             </li>
           </ul>
 
           <span class="navbar-text ms-auto" v-if="user.isLoggedIn">
-            欢迎, {{ user.name }} ({{ user.role === 'volunteer' ? '志愿者' : '普通用户' }})
+            Welcome, {{ user.name }} ({{ user.role === 'volunteer' ? 'Volunteer' : 'Normal User' }})
           </span>
         </div>
       </div>

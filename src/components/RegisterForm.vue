@@ -3,11 +3,11 @@
     <div class="row">
       <div class="col-md-6 mx-auto">
         <div class="card p-4 shadow-sm">
-          <h2 class="card-title text-center">用户注册</h2>
+          <h2 class="card-title text-center">UserLogin</h2>
           
           <form @submit.prevent="handleRegister">
             <div class="mb-3">
-              <label for="email" class="form-label">邮箱</label>
+              <label for="email" class="form-label">Email</label>
               <input 
                 type="email" 
                 class="form-control" 
@@ -21,7 +21,7 @@
             </div>
             
             <div class="mb-3">
-              <label for="password" class="form-label">密码</label>
+              <label for="password" class="form-label">Password</label>
               <input 
                 type="password" 
                 class="form-control" 
@@ -32,11 +32,11 @@
                 required
               >
               <div class="invalid-feedback">{{ passwordError }}</div>
-              <div class="form-text">密码长度至少6个字符，并包含大写字母、小写字母和数字。</div>
+              <div class="form-text">At least 6 characters, including Upper & Lower letters and number.</div>
             </div>
             
             <div class="mb-3">
-              <label for="confirmPassword" class="form-label">确认密码</label>
+              <label for="confirmPassword" class="form-label">confirm password</label>
               <input 
                 type="password" 
                 class="form-control" 
@@ -82,7 +82,7 @@ const isFormValid = computed(() => {
 // 验证函数
 const validateEmail = () => {
   if (!/^\S+@\S+\.\S+$/.test(registrationForm.value.email)) {
-    emailError.value = '请输入有效的邮箱地址。';
+    emailError.value = 'Please enter a validate Email address.';
   } else {
     emailError.value = '';
   }
@@ -91,13 +91,13 @@ const validateEmail = () => {
 const validatePassword = () => {
   const password = registrationForm.value.password;
   if (password.length < 6) {
-    passwordError.value = '密码长度至少为6个字符。';
+    passwordError.value = 'At least 6 characters.';
   } else if (!/[A-Z]/.test(password)) {
-    passwordError.value = '密码必须包含至少一个大写字母。';
+    passwordError.value = 'At least include one Upper letter.';
   } else if (!/[a-z]/.test(password)) {
-    passwordError.value = '密码必须包含至少一个小写字母。';
+    passwordError.value = 'At least include one lower letter.';
   } else if (!/[0-9]/.test(password)) {
-    passwordError.value = '密码必须包含至少一个数字。';
+    passwordError.value = 'At least include one number.';
   } else {
     passwordError.value = '';
   }
@@ -107,7 +107,7 @@ const validatePassword = () => {
 
 const validateConfirmPassword = () => {
   if (registrationForm.value.password !== registrationForm.value.confirmPassword) {
-    confirmPasswordError.value = '两次输入的密码不匹配。';
+    confirmPasswordError.value = 'Not match.';
   } else {
     confirmPasswordError.value = '';
   }
@@ -123,9 +123,9 @@ const handleRegister = () => {
 
   if (isFormValid.value) {
     const userRole = registrationForm.value.email.endsWith('@volunteer.com') ? 'volunteer' : 'user';
-    login('新用户', userRole);
+    login('New user', userRole);
 
-    alert('注册成功！');
+    alert('Succeed register!');
     router.push('/');
   }
 };
