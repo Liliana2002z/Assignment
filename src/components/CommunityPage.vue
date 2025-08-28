@@ -31,7 +31,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 
-// 模拟动态帖子数据
+// Simulate dynamic post data
 const communityPosts = ref([
   {
     id: 1,
@@ -56,10 +56,9 @@ const communityPosts = ref([
   }
 ]);
 
-// 创建一个计算属性来计算每个帖子的聚合评分
+// Create a computational attribute to calculate the aggregated score of each post
 const postsWithRating = computed(() => {
   return communityPosts.value.map(post => {
-    // 聚合评分逻辑：点赞数 + 评论数，或者您可以设计更复杂的算法
     const rating = post.likes + post.comments;
     return {
       ...post,

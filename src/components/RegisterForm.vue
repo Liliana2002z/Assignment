@@ -49,7 +49,7 @@
               <div class="invalid-feedback">{{ confirmPasswordError }}</div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100" :disabled="!isFormValid">注册</button>
+            <button type="submit" class="btn btn-primary w-100" :disabled="!isFormValid">register</button>
           </form>
         </div>
       </div>
@@ -68,18 +68,17 @@ const registrationForm = ref({
   confirmPassword: ''
 });
 
-// 验证状态
+// Verification status
 const emailError = ref('');
 const passwordError = ref('');
 const confirmPasswordError = ref('');
 
-// 计算属性，用于启用/禁用提交按钮
+// used to enable/disable the submit button
 const isFormValid = computed(() => {
   return !emailError.value && !passwordError.value && !confirmPasswordError.value &&
          registrationForm.value.email && registrationForm.value.password && registrationForm.value.confirmPassword;
 });
 
-// 验证函数
 const validateEmail = () => {
   if (!/^\S+@\S+\.\S+$/.test(registrationForm.value.email)) {
     emailError.value = 'Please enter a validate Email address.';
@@ -101,7 +100,7 @@ const validatePassword = () => {
   } else {
     passwordError.value = '';
   }
-  // 重新验证确认密码
+  // Re-verify and confirm the password
   validateConfirmPassword();
 };
 
@@ -113,10 +112,10 @@ const validateConfirmPassword = () => {
   }
 };
 
-// 提交处理函数
+// Submit processing function
 const router = useRouter();
 const handleRegister = () => {
-  // 最终提交前再次验证所有字段
+  // Verify all fields again before the final submission
   validateEmail();
   validatePassword();
   validateConfirmPassword();

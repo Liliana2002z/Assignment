@@ -1,33 +1,33 @@
 import { ref } from 'vue';
 
-// 使用 ref() 创建一个可响应的用户对象
+// Create a responsive user object
 export const user = ref({
-  isLoggedIn: false, // 用户登录状态，默认为未登录
-  role: null,        // 用户角色，例如 'user' 或 'volunteer'
-  name: '',          // 用户名或昵称
-  points: 0,         // 游戏化积分
-  badges: []         // 获得的徽章数组
+  isLoggedIn: false,
+  role: null,
+  name: '',
+  points: 0,
+  badges: []
 });
 
 /**
- * 模拟登录功能
- * @param {string} userName 用户名
- * @param {string} userRole 用户角色
+ * Simulated login function
+ * @param {string} userName user name
+ * @param {string} userRole user charactor
  */
 export function login(userName, userRole) {
   user.value.isLoggedIn = true;
   user.value.name = userName;
   user.value.role = userRole;
-  // 登录后，您可以根据角色初始化其他数据
+  // After logging in, initialize other data based on your role
   if (userRole === 'volunteer') {
-    user.value.points = 100; // 志愿者有初始积分
+    user.value.points = 100; // Volunteers have initial points
   } else {
     user.value.points = 0;
   }
 }
 
 /**
- * 模拟登出功能
+ * Simulated logout function
  */
 export function logout() {
   user.value.isLoggedIn = false;

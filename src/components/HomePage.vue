@@ -23,7 +23,7 @@
 <script setup>
 import { ref } from 'vue';
 
-// 使用 ref() 定义动态数据
+// Use ref() to define dynamic data
 const appName = ref('HealthYouth');
 const aboutText = ref('According to BR (A.1), BR (A.2), BR (B.1) and BR (B.2).');
 </script>

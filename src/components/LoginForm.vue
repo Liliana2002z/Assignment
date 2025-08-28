@@ -51,18 +51,17 @@ const loginForm = ref({
 const router = useRouter();
 
 const handleLogin = () => {
-  // 模拟登录成功，并根据邮箱分配角色
-  // 这里可根据邮箱或其他条件来决定角色
+  // allocate charactors according to email
   const userRole = loginForm.value.email.endsWith('@volunteer.com') ? 'volunteer' : 'user';
   
-  // 调用登录函数更新全局状态
-  login('测试用户', userRole); // 模拟登录用户名为“测试用户”
+  // upload state
+  login('test user', userRole);
 
-  // 登录成功后，跳转到主页或用户资料页
+  // success login, jump to some page
   router.push('/');
 };
 </script>
 
 <style scoped>
-/* 组件特有样式 */
+
 </style>
