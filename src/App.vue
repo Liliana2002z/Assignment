@@ -22,6 +22,9 @@
             <li class="nav-item" v-if="user.isLoggedIn">
               <router-link to="/community" class="nav-link">Community</router-link>
             </li>
+            <li class="nav-item" v-if="user.isLoggedIn && user.role === 'volunteer'">
+              <router-link to="/volunteer" class="nav-link">Volunteer Dashboard</router-link>
+            </li>
             <li class="nav-item" v-if="user.isLoggedIn">
               <a href="#" @click.prevent="logout" class="nav-link">Logout</a>
             </li>

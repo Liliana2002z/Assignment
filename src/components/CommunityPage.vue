@@ -18,7 +18,7 @@
                 Likes: {{ post.likes }} | Comments: {{ post.comments }}
               </div>
               <div class="text-end">
-                <strong>Scores: {{ post.rating }}</strong>
+                <strong>Average Score: {{ post.averageRating }}</strong>
               </div>
             </div>
             </div>
@@ -56,13 +56,30 @@ const communityPosts = ref([
   }
 ]);
 
+const ratings = ref([
+  { postId: 1, userId: 'user1', score: 4 },
+  { postId: 1, userId: 'user2', score: 5 },
+  { postId: 2, userId: 'user1', score: 3.5 },
+  { postId: 3, userId: 'user3', score: 4.5 },
+  { postId: 1, userId: 'user3', score: 3 },
+  { postId: 2, userId: 'user4', score: 5 },
+  { postId: 3, userId: 'user5', score: 4 }
+]);
+
 // Create a computational attribute to calculate the aggregated score of each post
 const postsWithRating = computed(() => {
   return communityPosts.value.map(post => {
-    const rating = post.likes + post.comments;
+    // 过滤出与当前帖子 ID 匹配的所有评分
+    const postRatings = ratings.value.filter(r => r.postId === post.id);
+    // 计算总分
+    const totalScore = postRatings.reduce((sum, r) => sum + r.score, 0);
+    // 计算平均分，如果没有评分则显示“No ratings yet”
+    const averageRating = postRatings.length > 0 
+      ? (totalScore / postRatings.length).toFixed(1) 
+      : 'No ratings yet';
     return {
       ...post,
-      rating: rating
+      averageRating: averageRating
     };
   });
 });
