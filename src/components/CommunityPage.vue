@@ -32,7 +32,7 @@
                     v-model.number="newRatings[post.id]"
                     min="1"
                     max="5"
-                    step="0.5"
+                    step="0.1"
                     required
                   />
                   <button type="submit" class="btn btn-sm btn-primary">Submit</button>
@@ -51,10 +51,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watchEffect } from 'vue'; // 导入 watchEffect
+import { ref, computed, watchEffect } from 'vue';
 import { user } from '../userStore.js';
 
-// 模拟动态帖子数据
+// dynamic posts
 const communityPosts = ref([
   {
     id: 1,
@@ -79,10 +79,10 @@ const communityPosts = ref([
   }
 ]);
 
-// 初始化评分数据，先尝试从 localStorage 读取
+
 const getInitialRatings = () => {
   const savedRatings = localStorage.getItem('communityRatings');
-  // 如果 localStorage 有数据，就解析它；否则使用硬编码的初始数据
+
   return savedRatings ? JSON.parse(savedRatings) : [
     { postId: 1, userId: 'user1', score: 4 },
     { postId: 1, userId: 'user2', score: 5 },
@@ -97,7 +97,7 @@ const getInitialRatings = () => {
 const ratings = ref(getInitialRatings());
 const newRatings = ref({});
 
-// 使用 watchEffect 监听 ratings 数组的变化，并在变化时保存到 localStorage
+// watchEffect，save to localStorage
 watchEffect(() => {
   localStorage.setItem('communityRatings', JSON.stringify(ratings.value));
 });

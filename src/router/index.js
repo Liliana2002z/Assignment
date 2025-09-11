@@ -4,8 +4,8 @@ import RegisterForm from '../components/RegisterForm.vue';
 import LoginForm from '../components/LoginForm.vue';
 import UserProfile from '../components/UserProfile.vue';
 import CommunityPage from '../components/CommunityPage.vue';
-import VolunteerOnlyPage from '../components/VolunteerOnlyPage.vue'; // 导入新组件
-import { user } from '../userStore.js'; // 导入用户状态
+import VolunteerOnlyPage from '../components/VolunteerOnlyPage.vue';
+import { user } from '../userStore.js';
 
 const routes = [
   {
@@ -39,7 +39,7 @@ const routes = [
     path: '/volunteer',
     name: 'Volunteer',
     component: VolunteerOnlyPage,
-    // 这个页面只对 'volunteer' 角色开放
+    // this page only for 'volunteer'
     meta: { requiresAuth: true, requiredRole: 'volunteer' }
   }
 
