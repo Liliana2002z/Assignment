@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-md-6 mx-auto">
         <div class="card p-4 shadow-sm">
-          <h2 class="card-title text-center">UserLogin</h2>
+          <h2 class="card-title text-center">User Register</h2>
           
           <form @submit.prevent="handleRegister">
             <div class="mb-3">
@@ -49,7 +49,7 @@
               <div class="invalid-feedback">{{ confirmPasswordError }}</div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100" :disabled="!isFormValid">register</button>
+            <button type="submit" class="btn btn-primary w-100" :disabled="!isFormValid">Register</button>
           </form>
         </div>
       </div>
@@ -60,7 +60,8 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { login } from '../userStore.js';
+import { auth } from '../firebase.js'; 
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 const registrationForm = ref({
   email: '',
@@ -114,18 +115,28 @@ const validateConfirmPassword = () => {
 
 // Submit processing function
 const router = useRouter();
-const handleRegister = () => {
-  // Verify all fields again before the final submission
+const handleRegister = async () => { 
   validateEmail();
   validatePassword();
   validateConfirmPassword();
 
   if (isFormValid.value) {
-    const userRole = registrationForm.value.email.endsWith('@volunteer.com') ? 'volunteer' : 'user';
-    login('New user', userRole);
+    const { email, password } = registrationForm.value;
+    try {
 
-    alert('Succeed register!');
-    router.push('/');
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+      await updateProfile(userCredential.user, {
+        displayName: '新用户' 
+      });
+
+      alert('Succeed register!');
+
+      router.push('/');
+    } catch (error) {
+
+      alert(`Registration failed: ${error.message}`);
+    }
   }
 };
 </script>

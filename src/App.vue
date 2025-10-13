@@ -12,6 +12,9 @@
             <li class="nav-item" v-if="!user.isLoggedIn">
               <router-link to="/login" class="nav-link">Login</router-link>
             </li>
+            <li class="nav-item" v-if="user.isLoggedIn">
+            <router-link to="/email-sender" class="nav-link">Send Email</router-link>
+            </li>
             <li class="nav-item" v-if="!user.isLoggedIn">
               <router-link to="/register" class="nav-link">Register</router-link>
             </li>
@@ -25,8 +28,9 @@
             <li class="nav-item" v-if="user.isLoggedIn && user.role === 'volunteer'">
               <router-link to="/volunteer" class="nav-link">Volunteer Dashboard</router-link>
             </li>
+            
             <li class="nav-item" v-if="user.isLoggedIn">
-              <a href="#" @click.prevent="logout" class="nav-link">Logout</a>
+              <a href="#" @click.prevent="signOut" class="nav-link">Logout</a>
             </li>
           </ul>
 
@@ -42,7 +46,7 @@
 </template>
 
 <script setup>
-import { user, logout } from './userStore.js';
+import { user, signOut } from './userStore.js';
 </script>
 
 <style>

@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /ratings/{ratingId} {
+
+      allow read: if true; 
+
+      // BR (C.4) 
+      allow create: 
+        if request.auth != null 
+        && request.resource.data.score is number
+        && request.resource.data.score >= 1.0 
+        && request.resource.data.score <= 5.0 
+        && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if false; 
+    }
+  }
+}

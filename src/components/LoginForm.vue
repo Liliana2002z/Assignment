@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-md-6 mx-auto">
         <div class="card p-4 shadow-sm">
-          <h2 class="card-title text-center">UserLogin</h2>
+          <h2 class="card-title text-center">User Login</h2>
 
           <form @submit.prevent="handleLogin">
             <div class="mb-3">
@@ -41,7 +41,8 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { login } from '../userStore.js';
+import { auth } from '../firebase.js'; 
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const loginForm = ref({
   email: '',
@@ -50,18 +51,16 @@ const loginForm = ref({
 
 const router = useRouter();
 
-const handleLogin = () => {
-  // allocate charactors according to email
-  const userRole = loginForm.value.email.endsWith('@volunteer.com') ? 'volunteer' : 'user';
-  
-  // upload state
-  login('test user', userRole);
+const handleLogin = async () => { 
+  const { email, password } = loginForm.value;
+  try {
 
-  // success login, jump to some page
-  router.push('/');
+    await signInWithEmailAndPassword(auth, email, password);
+
+
+    router.push('/');
+  } catch (error) {
+    alert(`Login failed: ${error.message}`);
+  }
 };
 </script>
-
-<style scoped>
-
-</style>

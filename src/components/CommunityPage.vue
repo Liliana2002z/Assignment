@@ -51,68 +51,66 @@
 </template>
 
 <script setup>
-import { ref, computed, watchEffect } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { user } from '../userStore.js';
+import { db } from '../firebase.js'; 
+import { 
+  collection, 
+  query, 
+  onSnapshot, 
+  addDoc, 
+  orderBy 
+} from "firebase/firestore";
 
-// dynamic posts
+
 const communityPosts = ref([
-  {
-    id: 1,
-    author: 'Alex',
-    content: 'I have tons of study pressure, but listening to music helps a lot.',
-    likes: 5,
-    comments: 2
-  },
-  {
-    id: 2,
-    author: 'Chloe',
-    content: 'Glad to be here to help, my aim is to share positive energy!',
-    likes: 12,
-    comments: 5
-  },
-  {
-    id: 3,
-    author: 'Nobody',
-    content: 'First post here, feel safe and no judgement.',
-    likes: 8,
-    comments: 3
-  }
+  { id: 1, author: 'Alex', content: 'I have tons of study pressure, but listening to music helps a lot.', likes: 5, comments: 2 },
+  { id: 2, author: 'Chloe', content: 'Glad to be here to help, my aim is to share positive energy!', likes: 12, comments: 5 },
+  { id: 3, author: 'Nobody', content: 'First post here, feel safe and no judgement.', likes: 8, comments: 3 }
 ]);
 
-
-const getInitialRatings = () => {
-  const savedRatings = localStorage.getItem('communityRatings');
-
-  return savedRatings ? JSON.parse(savedRatings) : [
-    { postId: 1, userId: 'user1', score: 4 },
-    { postId: 1, userId: 'user2', score: 5 },
-    { postId: 2, userId: 'user1', score: 3.5 },
-    { postId: 3, userId: 'user3', score: 4.5 },
-    { postId: 1, userId: 'user3', score: 3 },
-    { postId: 2, userId: 'user4', score: 5 },
-    { postId: 3, userId: 'user5', score: 4 }
-  ];
-};
-
-const ratings = ref(getInitialRatings());
+const ratings = ref([]); 
 const newRatings = ref({});
 
-// watchEffect，save to localStorage
-watchEffect(() => {
-  localStorage.setItem('communityRatings', JSON.stringify(ratings.value));
+onMounted(() => {
+
+  const ratingsQuery = query(collection(db, "ratings"), orderBy("timestamp", "asc"));
+
+  onSnapshot(ratingsQuery, (snapshot) => {
+    ratings.value = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data() 
+    }));
+  }, (error) => {
+    console.error("Error listening to ratings:", error);
+  });
 });
 
-const handleRating = (postId) => {
+const handleRating = async (postId) => { 
+
+  if (!user.value.isLoggedIn || !user.value.uid) {
+      alert('You must be logged in to submit a rating.');
+      return;
+  }
+    
   const submittedRating = newRatings.value[postId];
   
   if (submittedRating) {
-    ratings.value.push({
-      postId: postId,
-      userId: user.value.name,
-      score: submittedRating
-    });
-    newRatings.value[postId] = null;
-    alert('Rating submitted successfully!');
+    try {
+
+      await addDoc(collection(db, "ratings"), {
+        postId: postId,
+        userId: user.value.uid,
+        score: submittedRating,
+        timestamp: new Date()
+      });
+
+      newRatings.value[postId] = null;
+      alert('Rating submitted successfully!');
+    } catch (error) {
+      console.error("Error submitting rating: ", error);
+      alert('Failed to submit rating. Please try again.');
+    }
   }
 };
 

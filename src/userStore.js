@@ -1,38 +1,45 @@
 import { ref } from 'vue';
+import { auth } from './firebase.js';
+import { onAuthStateChanged, signOut as firebaseSignOut } from "firebase/auth";
 
-// Create a responsive user object
-export const user = ref({
+
+const user = ref({
   isLoggedIn: false,
-  role: null,
-  name: '',
+  uid: null, // Firebase User ID
+  name: 'Guest',
+  role: 'user',
   points: 0,
   badges: []
 });
 
-/**
- * Simulated login function
- * @param {string} userName user name
- * @param {string} userRole user charactor
- */
-export function login(userName, userRole) {
-  user.value.isLoggedIn = true;
-  user.value.name = userName;
-  user.value.role = userRole;
-  // After logging in, initialize other data based on your role
-  if (userRole === 'volunteer') {
-    user.value.points = 100; // Volunteers have initial points
-  } else {
-    user.value.points = 0;
-  }
-}
+onAuthStateChanged(auth, (firebaseUser) => {
+  if (firebaseUser) {
 
-/**
- * Simulated logout function
- */
-export function logout() {
-  user.value.isLoggedIn = false;
-  user.value.role = null;
-  user.value.name = '';
-  user.value.points = 0;
-  user.value.badges = [];
-}
+    user.value.isLoggedIn = true;
+    user.value.uid = firebaseUser.uid;
+    user.value.name = firebaseUser.displayName || firebaseUser.email;
+
+  //C.2
+    const userEmail = firebaseUser.email || '';
+    user.value.role = userEmail.endsWith('@volunteer.com') ? 'volunteer' : 'user';
+    
+
+  } else {
+    user.value.isLoggedIn = false;
+    user.value.uid = null;
+    user.value.name = 'Guest';
+    user.value.role = 'user';
+  }
+});
+
+
+const signOut = async () => {
+  try {
+    await firebaseSignOut(auth);
+  } catch (error) {
+    console.error("Sign out error:", error);
+  }
+};
+
+
+export { user, signOut };
