@@ -8,6 +8,9 @@
             <li class="nav-item">
               <router-link to="/" class="nav-link">Homepage</router-link>
             </li>
+            <li class="nav-item"> 
+              <router-link to="/map" class="nav-link">Map</router-link>
+            </li>
 
             <li class="nav-item" v-if="!user.isLoggedIn">
               <router-link to="/login" class="nav-link">Login</router-link>

@@ -58,7 +58,7 @@ onMounted(() => {
     $(`#${props.tableId} thead tr:eq(1) th`).each(function (i) {
       const title = $(this).text();
 
-      $(this).html('<input type="text" placeholder="Search '+title+'" />');
+      $(this).html('<input type="text" placeholder="Search '+title+'" aria-label="Search by ' + title + '" />'); 
 
       $('input', this).on('keyup change', function () {
         if (dataTableInstance.column(i).search() !== this.value) {

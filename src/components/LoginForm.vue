@@ -14,7 +14,7 @@
                 id="loginEmail" 
                 v-model="loginForm.email" 
                 required
-                aria-label="Key your register Email"
+                aria-label="Enter your register Email"
               >
             </div>
             
@@ -26,7 +26,7 @@
                 id="loginPassword" 
                 v-model="loginForm.password" 
                 required
-                aria-label="Key your password"
+                aria-label="Enter your password"
               >
             </div>
 

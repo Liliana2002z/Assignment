@@ -29,6 +29,7 @@
             <div class="mb-3">
               <label for="attachment" class="form-label">Attachment (PDF, TXT, etc.)</label>
               <input type="file" class="form-control" id="attachment" @change="handleFileChange" required>
+              <div class="form-text">Accepted formats include PDF, TXT, and common image files (max 5MB).</div>
             </div>
 
             <button type="submit" class="btn btn-primary w-100" :disabled="isSending">

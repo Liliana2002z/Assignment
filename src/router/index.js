@@ -6,6 +6,7 @@ import RegisterForm from '../components/RegisterForm.vue';
 import UserProfile from '../components/UserProfile.vue';
 import VolunteerOnlyPage from '../components/VolunteerOnlyPage.vue';
 import EmailSender from '../components/EmailSender.vue'; 
+import MapComponent from '../components/MapComponent.vue';
 
 import { user } from '../userStore.js'; 
 
@@ -15,10 +16,8 @@ const routes = [
   { path: '/login', name: 'Login', component: LoginForm },
   { path: '/register', name: 'Register', component: RegisterForm },
   { path: '/profile', name: 'Profile', component: UserProfile },
-  { 
-    path: '/volunteer', 
-    name: 'VolunteerDashboard', 
-    component: VolunteerOnlyPage,
+  { path: '/map', name: 'MapService', component: MapComponent },
+  { path: '/volunteer', name: 'VolunteerDashboard', component: VolunteerOnlyPage,
     meta: { requiresRole: 'volunteer' } 
   },
   { path: '/email-sender', name: 'EmailSender', component: EmailSender, meta: { requiresAuth: true }}
