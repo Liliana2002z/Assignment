@@ -37,6 +37,10 @@
             </li>
             
             <li class="nav-item">
+              <router-link to="/ai-chat" class="nav-link">🤖 AI Chat</router-link>
+            </li>
+            
+            <li class="nav-item">
               <router-link to="/analytics" class="nav-link">
                 📊 Analytics
               </router-link>

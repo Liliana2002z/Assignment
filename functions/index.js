@@ -13,7 +13,7 @@ let GEMINI_API_KEY;
 // 确保在顶层代码中先尝试读取一次配置
 try {
   SENDGRID_API_KEY=process.env.SENDGRID_API_KEY;
-  SENDGRID_API_KEY=process.env.GEMINI_API_KEY;
+  GEMINI_API_KEY=process.env.GEMINI_API_KEY;
 } catch (e) {
   /* Ignored: Will be checked again inside the function */
 }
@@ -166,16 +166,31 @@ exports.generateContent = functions.https.onRequest(async (req, res) => {
   if (!prompt) {
     return res.status(400).send({error: "Prompt is required."});
   }
+  // 指导AI行为
+  const SYSTEM_INSTRUCTION = `
+    You are a compassionate and empathetic AI mental health
+    assistant for a youth platform called HearYou. 
+    Your role is to:
+    - Provide empathetic, non-judgmental support and validate feelings.
+    - Keep conversations supportive and concise (aim for 2-3 paragraphs).
+    - NEVER provide medical diagnoses or treatment plans.
+    - In case of crisis (e.g., suicide, self-harm),
+    immediately suggest contacting emergency services (000, 13 11 14 Lifeline).
+    - Be warm and age-appropriate for teenagers and young adults.
+  `;
+  const contents = [
+    {role: "user", parts: [
+      {text: `${SYSTEM_INSTRUCTION}\n\nUser's message: ${prompt}`}]},
+  ];
 
   try {
     const ai = new GoogleGenAI({apiKey: apiKey});
-
     // 调用 Gemini-2.5-Flash 模型
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: [{role: "user", parts: [{text: prompt}]}],
+      contents: contents,
       config: {
-        responseMimeType: "text/plain",
+        temperature: 0.7,
       },
     });
 
