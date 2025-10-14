@@ -2,22 +2,30 @@ const functions = require("firebase-functions");
 const sgMail = require("@sendgrid/mail");
 const {getAuth} = require("firebase-admin/auth");
 const admin = require("firebase-admin");
+// 新增：导入 Gemini SDK
+const {GoogleGenAI} = require("@google/genai");
+
 admin.initializeApp();
 
 let SENDGRID_API_KEY;
+let GEMINI_API_KEY;
 
-// 确保在顶层代码中先尝试读取一次
+// 确保在顶层代码中先尝试读取一次配置
 try {
-  SENDGRID_API_KEY = functions.config().sendgrid.key;
+  SENDGRID_API_KEY=process.env.SENDGRID_API_KEY;
+  SENDGRID_API_KEY=process.env.GEMINI_API_KEY;
 } catch (e) {
   /* Ignored: Will be checked again inside the function */
 }
 
+// -----------------------------------------------------
+// 现有函数: sendEmailV2 (已集成可选附件逻辑)
+// -----------------------------------------------------
 exports.sendEmailV2 =
 functions.https.onRequest(async (req, res) => {
-  // 1. 设置 CORS 头部
-  res.set("Access-Control-Allow-Origin", "http://localhost:5173");
-  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  // 1. 设置 CORS 头部 (允许所有来源以方便调试)
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
   res.set("Access-Control-Allow-Headers", "Authorization, Content-Type");
 
   // 处理 OPTIONS 预检请求
@@ -35,7 +43,7 @@ functions.https.onRequest(async (req, res) => {
   if (!SENDGRID_API_KEY) {
     try {
       // 如果第一次读取失败 (顶层)，这里再次尝试读取。
-      SENDGRID_API_KEY = functions.config().sendgrid.key;
+      SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
     } catch (e) {
       /* Ignored: 错误将在下面的 if 语句中被捕获 */
     }
@@ -105,4 +113,77 @@ functions.https.onRequest(async (req, res) => {
         {error: "Send failed, check Cloud Function log."});
   }
 });
-// Force deploy to load new config
+// -----------------------------------------------------
+// 🚨 新增函数: generateContent (用于 Gemini AI 调用)
+// -----------------------------------------------------
+exports.generateContent = functions.https.onRequest(async (req, res) => {
+  // 1. 设置 CORS (允许所有来源!)
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE, PUT");
+  res.set("Access-Control-Allow-Headers", "Authorization, Content-Type");
+
+  if (req.method === "OPTIONS") {
+    res.status(204).send("");
+    return;
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).send({error: "Method Not Allowed"});
+  }
+
+  // 2. 身份验证 (确保用户已登录)
+  const authorizationHeader = req.headers.authorization;
+  if (!authorizationHeader || !authorizationHeader.startsWith("Bearer ")) {
+    return res.status(401).send(
+        {error: "Unauthenticated: Authorization header missing."});
+  }
+
+  const idToken = authorizationHeader.split("Bearer ")[1];
+  try {
+    await getAuth().verifyIdToken(idToken);
+  } catch (e) {
+    return res.status(401).send(
+        {error: "Unauthenticated: Invalid or expired token."});
+  }
+
+  // 3. 密钥检查
+  let apiKey = GEMINI_API_KEY;
+  if (!apiKey) {
+    try {
+      // 尝试再次从 config 读取 (以防顶层读取失败)
+      apiKey = functions.config().gemini.key;
+    } catch (e) {
+      /* pass */
+    }
+  }
+
+  if (!apiKey) {
+    return res.status(500).send(
+        {error: "Gemini API Key is not configured on the server."});
+  }
+
+  const {prompt} = req.body;
+  if (!prompt) {
+    return res.status(400).send({error: "Prompt is required."});
+  }
+
+  try {
+    const ai = new GoogleGenAI({apiKey: apiKey});
+
+    // 调用 Gemini-2.5-Flash 模型
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [{role: "user", parts: [{text: prompt}]}],
+      config: {
+        responseMimeType: "text/plain",
+      },
+    });
+
+    // 成功返回生成的文本
+    return res.status(200).send({content: response.text});
+  } catch (error) {
+    console.error("Gemini API call failed:", error);
+    return res.status(500).send(
+        {error: `AI generation failed. Details: ${error.message}`});
+  }
+});
