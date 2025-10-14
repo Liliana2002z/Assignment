@@ -35,6 +35,17 @@
             <li class="nav-item" v-if="user.isLoggedIn">
               <a href="#" @click.prevent="signOut" class="nav-link">Logout</a>
             </li>
+            
+            <li class="nav-item">
+              <router-link to="/analytics" class="nav-link">
+                📊 Analytics
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/admin" class="nav-link">
+                🛡️ Admin
+              </router-link>
+            </li>
           </ul>
 
           <span class="navbar-text ms-auto" v-if="user.isLoggedIn">

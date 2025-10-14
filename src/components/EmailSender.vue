@@ -28,12 +28,12 @@
 
             <div class="mb-3">
               <label for="attachment" class="form-label">Attachment (PDF, TXT, etc.)</label>
-              <input type="file" class="form-control" id="attachment" @change="handleFileChange" required>
+              <input type="file" class="form-control" id="attachment" @change="handleFileChange"> 
               <div class="form-text">Accepted formats include PDF, TXT, and common image files (max 5MB).</div>
             </div>
 
             <button type="submit" class="btn btn-primary w-100" :disabled="isSending">
-              {{ isSending ? 'Sending...' : 'Send Email with Attachment' }}
+              {{ isSending ? 'Sending...' : 'Send Email' }}
             </button>
           </form>
         </div>
@@ -47,16 +47,16 @@ import { ref } from 'vue';
 import { auth } from '../firebase.js'; 
 import axios from 'axios';
 
+// Cloud Function URL (请确保 LOCATION 和 PROJECT_ID 正确)
 const FUNCTION_URL = 'https://us-central1-a-a5d64.cloudfunctions.net/sendEmailV2';
 
-// 5MB (5 * 1024 * 1024)
 const MAX_FILE_SIZE = 5242880; 
 
 const emailForm = ref({
   to: '',
   subject: 'Test Email from HealthYouth App',
-  text: 'Please find the attached document.',
-  file: null,
+  text: 'This email was sent with optional attachment functionality.',
+  file: null, // file 对象
 });
 
 const isSending = ref(false);
@@ -78,42 +78,44 @@ const sendEmail = async () => {
     message.value = { text: 'Authentication required. Please log in before sending an email.', type: 'danger' };
     return;
   }
-  if (!emailForm.value.file || emailForm.value.file.size > MAX_FILE_SIZE) {
-    message.value = { text: 'Please select a file to attach (max 5MB).', type: 'danger' };
-    return;
-  }
+  // 🚨 修复点 2：移除对 emailForm.value.file 的强制检查
 
   isSending.value = true;
   message.value = null;
 
   const file = emailForm.value.file;
-
-  // 将文件转换为 Base64 编码
-  const base64Attachment = await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-        // 确保移除 Base64 字符串中的所有换行符和空格
-        const base64String = reader.result.split(',')[1].replace(/[\r\n\s]/g, '');
-        resolve(base64String); 
-    };
-    reader.onerror = error => reject(error);
-    reader.readAsDataURL(file);
-  });
+  let base64Attachment = null;
+  let fileName = null;
+  let fileType = null;
   
+  // 🚨 修复点 3：仅当文件存在且大小合适时，才进行 Base64 转换
+  if (file && file.size <= MAX_FILE_SIZE) {
+    base64Attachment = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+          const base64String = reader.result.split(',')[1].replace(/[\r\n\s]/g, '');
+          resolve(base64String); 
+      };
+      reader.onerror = error => reject(error);
+      reader.readAsDataURL(file);
+    });
+    
+    fileName = file.name;
+    fileType = file.type;
+  }
+
   try {
-    // 1. 获取用户的 ID Token
     const token = await auth.currentUser.getIdToken();
     
-    // 2. 发送标准 HTTP POST 请求
     const response = await axios.post(
         FUNCTION_URL,
         {
             to: emailForm.value.to,
             subject: emailForm.value.subject,
             text: emailForm.value.text,
-            attachmentBase64: base64Attachment,
-            filename: file.name,
-            filetype: file.type,
+            attachmentBase64: base64Attachment, // 值为 null 或 Base64 字符串
+            filename: fileName,
+            filetype: fileType,
         },
         {
             headers: {

@@ -1,5 +1,3 @@
-// functions/index.js (最终修复版：解决 const 和 Lint 错误)
-
 const functions = require("firebase-functions");
 const sgMail = require("@sendgrid/mail");
 const {getAuth} = require("firebase-admin/auth");
@@ -18,9 +16,9 @@ try {
 exports.sendEmailV2 =
 functions.https.onRequest(async (req, res) => {
   // 1. 设置 CORS 头部
-  // res.set("Access-Control-Allow-Origin", "http://localhost:5173");
-  // res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-  // res.set("Access-Control-Allow-Headers", "Authorization, Content-Type");
+  res.set("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Authorization, Content-Type");
 
   // 处理 OPTIONS 预检请求
   if (req.method === "OPTIONS") {
@@ -82,15 +80,18 @@ functions.https.onRequest(async (req, res) => {
     from: senderEmail,
     subject: subject,
     text: text,
-    attachments: [
-      {
-        content: attachmentBase64,
-        filename: filename || "attachment.file",
-        type: filetype || "application/octet-stream",
-        disposition: "attachment",
-      },
-    ],
+    attachments: [],
   };
+
+  if (attachmentBase64) {
+    msg.attachments.push({
+      content: attachmentBase64,
+      filename: filename || "attachment.file",
+      type: filetype || "application/octet-stream",
+      disposition: "attachment",
+    });
+  }
+
 
   try {
     await sgMail.send(msg);
@@ -104,3 +105,4 @@ functions.https.onRequest(async (req, res) => {
         {error: "Send failed, check Cloud Function log."});
   }
 });
+// Force deploy to load new config

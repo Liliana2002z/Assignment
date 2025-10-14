@@ -7,6 +7,8 @@ import UserProfile from '../components/UserProfile.vue';
 import VolunteerOnlyPage from '../components/VolunteerOnlyPage.vue';
 import EmailSender from '../components/EmailSender.vue'; 
 import MapComponent from '../components/MapComponent.vue';
+import AnalyticsDashboard from '../components/AnalyticsDashboard.vue'
+import AdminDashboard from '../components/AdminDashboard.vue'
 
 import { user } from '../userStore.js'; 
 
@@ -20,6 +22,8 @@ const routes = [
   { path: '/volunteer', name: 'VolunteerDashboard', component: VolunteerOnlyPage,
     meta: { requiresRole: 'volunteer' } 
   },
+  { path: '/analytics', name: 'Analytics', component: AnalyticsDashboard},
+  { path: '/admin', name: 'AdminDashboard', component: AdminDashboard},
   { path: '/email-sender', name: 'EmailSender', component: EmailSender, meta: { requiresAuth: true }}
 ];
 
