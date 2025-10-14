@@ -17,7 +17,7 @@
         </div>
       </div>
     </div>
-    
+  
     <div class="row mt-4">
       <div class="col-md-6">
         <InteractiveTable 
@@ -27,6 +27,9 @@
           :column-defs="userPointsColumnDefs"
           :table-data="userPointsData"
         />
+        <button class="btn btn-sm btn-outline-success mt-2" @click="exportUserPoints">
+          Export User Data (CSV)
+        </button>
       </div>
       <div class="col-md-6">
         <InteractiveTable 
@@ -36,6 +39,9 @@
           :column-defs="postPerformanceColumnDefs"
           :table-data="postPerformanceData"
         />
+        <button class="btn btn-sm btn-outline-success mt-2" @click="exportUserPoints">
+          Export User Data (CSV)
+        </button>
       </div>
     </div>
   </div>
@@ -49,6 +55,8 @@ import InteractiveTable from './InteractiveTable.vue'; // 确保路径正确
 // 确保这些 JSON 文件在 src/data 目录下存在
 import userPointsData from '../data/UserPointsData.json';
 import postPerformanceData from '../data/PostPerformanceData.json';
+
+import { exportToCSV } from '../utils/exportData.js'; 
 
 // Use ref() to define dynamic data
 const appName = ref('HealthYouth');
@@ -71,6 +79,16 @@ const postPerformanceColumnDefs = [
     { data: 'total_comments' }
 ];
 
+// BR (E.4)
+const exportUserPoints = () => {
+    // 将用户积分的 JSON 数据导出
+    exportToCSV(userPointsData, 'user_points_data');
+};
+
+const exportPostData = () => {
+    // 将帖子绩效的 JSON 数据导出
+    exportToCSV(postPerformanceData, 'post_performance_data');
+};
 </script>
 
 <style scoped>

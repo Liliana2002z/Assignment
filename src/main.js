@@ -6,8 +6,9 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'datatables.net-dt'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import 'datatables.net-dt'
-import 'mapbox-gl/dist/mapbox-gl.css'
+
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
+import 'mapbox-gl/dist/mapbox-gl.css'
 
 createApp(App)
    .use(router)
