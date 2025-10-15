@@ -7,9 +7,10 @@ import UserProfile from '../components/UserProfile.vue';
 import VolunteerOnlyPage from '../components/VolunteerOnlyPage.vue';
 import EmailSender from '../components/EmailSender.vue'; 
 import MapComponent from '../components/MapComponent.vue';
-import AnalyticsDashboard from '../components/AnalyticsDashboard.vue'
-import AdminDashboard from '../components/AdminDashboard.vue'
-import AIChatbot from '../components/AIChatbot.vue'
+import AnalyticsDashboard from '../components/AnalyticsDashboard.vue';
+import AdminDashboard from '../components/AdminDashboard.vue';
+import AIChatbot from '../components/AIChatbot.vue';
+import AppointmentBooking from '../components/AppointmentBooking.vue';
 
 import { user } from '../userStore.js'; 
 
@@ -26,6 +27,7 @@ const routes = [
   { path: '/analytics', name: 'Analytics', component: AnalyticsDashboard},
   { path: '/admin', name: 'AdminDashboard', component: AdminDashboard},
   { path: '/ai-chat', name: 'AIChat', component: AIChatbot},
+  { path: '/appointments', name: 'Appointments', component: AppointmentBooking},
   { path: '/email-sender', name: 'EmailSender', component: EmailSender, meta: { requiresAuth: true }}
 ];
 
