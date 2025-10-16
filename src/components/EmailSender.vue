@@ -3,7 +3,7 @@
     <div class="row">
       <div class="col-md-8 mx-auto">
         <div class="card p-4 shadow-lg">
-          <h2 class="card-title text-center">BR (D.2) Email Sender</h2>
+          <h2 class="card-title text-center">Email Sender</h2>
           
           <div v-if="message" :class="['alert mt-3', message.type === 'success' ? 'alert-success' : 'alert-danger']">
             {{ message.text }}
@@ -76,11 +76,7 @@ const handleFileChange = (event) => {
   }
 };
 
-// 移除 generateEmailContent 函数
 
-// -----------------------------------------------------
-// 现有函数: sendEmail 
-// -----------------------------------------------------
 const sendEmail = async () => {
   if (!auth.currentUser) {
     message.value = { text: 'Authentication required. Please log in before sending an email.', type: 'danger' };

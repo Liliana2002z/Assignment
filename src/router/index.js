@@ -24,8 +24,12 @@ const routes = [
   { path: '/volunteer', name: 'VolunteerDashboard', component: VolunteerOnlyPage,
     meta: { requiresRole: 'volunteer' } 
   },
-  { path: '/analytics', name: 'Analytics', component: AnalyticsDashboard},
-  { path: '/admin', name: 'AdminDashboard', component: AdminDashboard},
+  { path: '/analytics', name: 'Analytics', component: AnalyticsDashboard,
+    meta: { requiresRole: 'admin' }
+  },
+  { path: '/admin', name: 'AdminDashboard', component: AdminDashboard,
+    meta: { requiresRole: 'admin' }
+  },
   { path: '/ai-chat', name: 'AIChat', component: AIChatbot},
   { path: '/appointments', name: 'Appointments', component: AppointmentBooking},
   { path: '/email-sender', name: 'EmailSender', component: EmailSender, meta: { requiresAuth: true }}
@@ -37,17 +41,28 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-
+  const loggedIn = user.value.isLoggedIn;
+  const userRole = user.value.role;
+  
+  //检查是否需要登录
+  if (to.meta.requiresAuth && !loggedIn) {
+    alert("Access Denied! Please log in to view this page.");
+    next({ path: '/login' });
+    return;
+  }
+  //检查角色权限
   if (to.meta.requiresRole) {
-    if (user.value.isLoggedIn && user.value.role === to.meta.requiresRole) {
+    if (loggedIn && userRole === to.meta.requiresRole) {
       next();
     } else {
-      alert(`Access Denied! Only users with the '${to.meta.requiresRole}' role can view this page.`);
+      // 检查是否是 Admin/Volunteer 页面但用户是普通用户
+      alert(`Access Denied! You do not have the required role to view this page.`);
       next({ path: '/' }); 
+      return;
     }
-  } else {
-    next();
   }
+    next();
+  
 });
 
 export default router;

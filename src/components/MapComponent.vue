@@ -7,7 +7,7 @@
 
     <div class="card p-4 shadow-sm">
       <!-- Main heading with proper semantic structure (WCAG 1.3.1) -->
-      <h1 class="card-title text-center mb-4">BR (E.2) Location Services</h1>
+      <h1 class="card-title text-center mb-4">Location Services</h1>
       
       <!-- Screen reader live region for announcements (WCAG 4.1.3) -->
       <div 

@@ -3,22 +3,20 @@
     <div class="row">
       <div class="col-12 text-center">
         <h1>Welcome to {{ appName }}!</h1>
-        <p class="lead mt-3">This is a space for listening and sharing. (BR C & D Demo)</p>
+        <p class="lead mt-3">This is a space for listening and sharing.</p>
       </div>
     </div>
     
-    <div class="row mt-4">
-      <div class="col-md-8 mx-auto">
-        <div class="card p-4 shadow-sm">
-          <h2 class="card-title">About this web</h2>
-          <p>
-            According to BR (A.1), BR (A.2), BR (B.1) and BR (B.2).
-          </p>
+    <div v-if="!user.isLoggedIn" class="row mt-5">
+      <div class="col-md-8 mx-auto text-center">
+        <div class="alert alert-warning" role="alert">
+          <strong>🔒 Access Restricted:</strong> Please log in to view the Administrative Data Overview tables.
         </div>
+        <router-link to="/login" class="btn btn-primary btn-lg">Go to Login</router-link>
       </div>
     </div>
-  
-    <div class="row mt-4">
+
+    <div class="row mt-4" v-if="user.isLoggedIn">
       <div class="col-md-6">
         <InteractiveTable 
           title="User Activity and Points"
@@ -26,7 +24,7 @@
           :headers="['ID', 'Name', 'Role', 'Points', 'Last Activity']"
           :column-defs="userPointsColumnDefs"
           :table-data="userPointsData"
-        />
+          />
         <button class="btn btn-sm btn-outline-success mt-2" @click="exportUserPoints">
           Export User Data (CSV)
         </button>
@@ -39,9 +37,8 @@
           :column-defs="postPerformanceColumnDefs"
           :table-data="postPerformanceData"
         />
-        <button class="btn btn-sm btn-outline-success mt-2" @click="exportUserPoints">
-          Export User Data (CSV)
-        </button>
+        <button class="btn btn-sm btn-outline-success mt-2" @click="exportPostData">
+          Export Post Data (CSV) </button>
       </div>
     </div>
   </div>
@@ -49,10 +46,11 @@
 
 <script setup>
 import { ref } from 'vue';
-import InteractiveTable from './InteractiveTable.vue'; // 确保路径正确
+import InteractiveTable from './InteractiveTable.vue'; 
+// 🚨 NEW: 导入 userStore
+import { user } from '../userStore.js'; 
 
 // 导入 Mock 数据
-// 确保这些 JSON 文件在 src/data 目录下存在
 import userPointsData from '../data/UserPointsData.json';
 import postPerformanceData from '../data/PostPerformanceData.json';
 
@@ -60,9 +58,8 @@ import { exportToCSV } from '../utils/exportData.js';
 
 // Use ref() to define dynamic data
 const appName = ref('HealthYouth');
-// 原始 About Text 的 ref 已移除，保留了 card 内容
 
-// 🌟 定义 DataTables 所需的列定义 (告诉 DataTables 如何映射 JSON 字段)
+// 🌟 定义 DataTables 所需的列定义 (保持不变)
 const userPointsColumnDefs = [
     { data: 'id' }, 
     { data: 'name' }, 
@@ -86,7 +83,7 @@ const exportUserPoints = () => {
 };
 
 const exportPostData = () => {
-    // 将帖子绩效的 JSON 数据导出
+    // 修正了之前代码中第二个按钮的错误调用
     exportToCSV(postPerformanceData, 'post_performance_data');
 };
 </script>

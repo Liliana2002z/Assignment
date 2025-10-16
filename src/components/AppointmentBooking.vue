@@ -1,11 +1,9 @@
 <template>
   <div class="container my-5">
-    <!-- Skip link for accessibility -->
     <a href="#calendar-container" class="skip-link">Skip to calendar</a>
 
     <div class="row">
       <div class="col-12">
-        <!-- Header -->
         <div class="card shadow-sm mb-4">
           <div class="card-header bg-gradient-primary text-white">
             <h1 class="h4 mb-0">
@@ -17,7 +15,6 @@
           </div>
         </div>
 
-        <!-- Info Alert -->
         <div class="alert alert-info d-flex align-items-start mb-4" role="alert">
           <span class="me-2 fs-5" aria-hidden="true">ℹ️</span>
           <div>
@@ -26,9 +23,12 @@
           </div>
         </div>
 
-        <!-- Main Content Row -->
+        <div v-if="!currentUserId" class="alert alert-warning d-flex align-items-start mb-4" role="alert">
+          <span class="me-2 fs-5" aria-hidden="true">🔒</span>
+          <strong>Please Log In:</strong> You must be logged in to view or book appointments.
+        </div>
+        
         <div class="row">
-          <!-- Calendar Section -->
           <div class="col-lg-8 mb-4">
             <div class="card shadow-sm">
               <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -84,9 +84,7 @@
             </div>
           </div>
 
-          <!-- Sidebar Section -->
           <div class="col-lg-4">
-            <!-- Counselor Selection -->
             <div class="card shadow-sm mb-3">
               <div class="card-header bg-success text-white">
                 <h2 class="h5 mb-0">
@@ -102,6 +100,7 @@
                     v-model="selectedCounselor"
                     @change="loadCounselorSchedule"
                     aria-describedby="counselor-help"
+                    :disabled="!currentUserId"
                   >
                     <option value="">All Counselors</option>
                     <option 
@@ -117,7 +116,6 @@
                   </div>
                 </div>
 
-                <!-- Selected Counselor Info -->
                 <div v-if="selectedCounselorInfo" class="alert alert-light">
                   <h3 class="h6 mb-2">{{ selectedCounselorInfo.name }}</h3>
                   <p class="small mb-1">
@@ -130,7 +128,6 @@
               </div>
             </div>
 
-            <!-- Legend -->
             <div class="card shadow-sm mb-3">
               <div class="card-header bg-info text-white">
                 <h2 class="h5 mb-0">
@@ -143,61 +140,17 @@
                   <span class="small">Your Appointments (Click to view details)</span>
                 </div>
                 <div class="d-flex align-items-center mb-2">
-                  <div class="legend-box bg-success"></div>
-                  <span class="small">Available Slots (Click to book)</span>
-                </div>
-                <div class="d-flex align-items-center">
                   <div class="legend-box bg-danger"></div>
-                  <span class="small">Unavailable (Already booked)</span>
+                  <span class="small">Unavailable (Booked by others)</span>
                 </div>
-              </div>
+                </div>
             </div>
 
-            <!-- Your Appointments -->
-            <div class="card shadow-sm">
-              <div class="card-header bg-warning text-dark">
-                <h2 class="h5 mb-0">
-                  <span aria-hidden="true">📋</span> Your Appointments
-                </h2>
-              </div>
-              <div class="card-body">
-                <div v-if="userAppointments.length === 0" class="text-muted text-center py-3">
-                  <p class="mb-0">No appointments scheduled</p>
-                </div>
-                <div v-else>
-                  <div 
-                    v-for="apt in userAppointments" 
-                    :key="apt.id"
-                    class="appointment-item p-2 mb-2 border rounded"
-                  >
-                    <div class="d-flex justify-content-between align-items-start">
-                      <div class="flex-grow-1">
-                        <h3 class="h6 mb-1">{{ apt.title }}</h3>
-                        <small class="text-muted d-block">
-                          {{ formatDate(apt.start) }}
-                        </small>
-                        <small class="text-muted d-block">
-                          {{ formatTime(apt.start) }} - {{ formatTime(apt.end) }}
-                        </small>
-                      </div>
-                      <button 
-                        class="btn btn-sm btn-outline-danger"
-                        @click="cancelAppointment(apt)"
-                        :aria-label="`Cancel appointment with ${apt.counselorName}`"
-                      >
-                        <span aria-hidden="true">🗑️</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
-          </div>
         </div>
       </div>
     </div>
 
-    <!-- Booking Modal -->
     <div 
       v-if="showBookingModal"
       class="modal fade show d-block" 
@@ -298,16 +251,19 @@
                 ></textarea>
               </div>
 
-              <!-- Conflict Warning -->
               <div v-if="hasConflict" class="alert alert-danger" role="alert">
                 <strong>⚠️ Booking Conflict!</strong> You already have an appointment at this time.
+              </div>
+              
+              <div v-if="!currentUserId" class="alert alert-danger" role="alert">
+                <strong>⚠️ Login Required!</strong> Please log in before confirming a booking.
               </div>
 
               <div class="d-grid gap-2">
                 <button 
                   type="submit" 
                   class="btn btn-primary"
-                  :disabled="hasConflict"
+                  :disabled="hasConflict || !currentUserId"
                 >
                   <span aria-hidden="true">✓</span> Confirm Booking
                 </button>
@@ -325,7 +281,6 @@
       </div>
     </div>
 
-    <!-- Appointment Details Modal -->
     <div 
       v-if="showDetailsModal"
       class="modal fade show d-block" 
@@ -380,8 +335,9 @@
               type="button" 
               class="btn btn-danger"
               @click="cancelAppointmentFromModal"
+              :disabled="selectedEvent?.extendedProps?.userId !== currentUserId"
             >
-              <span aria-hidden="true">🗑️</span> Cancel Appointment
+              <span aria-hidden="true">🗑️</span> Cancel My Appointment
             </button>
             <button 
               type="button" 
@@ -395,7 +351,6 @@
       </div>
     </div>
 
-    <!-- Screen reader announcements -->
     <div 
       role="status" 
       aria-live="polite" 
@@ -408,12 +363,18 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
+
+// 🚨 NEW: 导入 userStore (用于同步登录状态)
+import { user } from '../userStore.js'; 
+import { db, auth } from '@/firebase'; 
+import { collection, onSnapshot, query, addDoc, deleteDoc, doc } from 'firebase/firestore';
+
 
 // State
 const fullCalendar = ref(null);
@@ -432,36 +393,94 @@ const bookingData = ref({
   type: 'individual',
   notes: ''
 });
+// 🚨 MODIFIED: 使用 userStore 的状态作为计算属性 (解决时序问题)
+const currentUserId = computed(() => user.value.uid); 
 
-// Mock counselors data
+
+// Firestore 集合引用
+const appointmentsCollection = collection(db, 'appointments');
+
+// Mock counselors data (作为常量保留)
 const counselors = ref([
   {
-    id: 1,
+    id: 'coun1',
     name: 'Dr. Sarah Johnson',
     specialty: 'Anxiety & Depression',
     availability: 'Mon-Fri 9AM-5PM'
   },
   {
-    id: 2,
+    id: 'coun2',
     name: 'Dr. Michael Chen',
     specialty: 'Teen Counseling',
     availability: 'Tue-Sat 10AM-6PM'
   },
   {
-    id: 3,
+    id: 'coun3',
     name: 'Dr. Emily Williams',
     specialty: 'Trauma & PTSD',
     availability: 'Mon-Thu 8AM-4PM'
   },
   {
-    id: 4,
+    id: 'coun4',
     name: 'Dr. James Brown',
     specialty: 'Family Therapy',
     availability: 'Wed-Sun 11AM-7PM'
   }
 ]);
 
-// Helper functions (defined before calendar options)
+
+// 实时监听函数
+const subscribeToAppointments = () => {
+  if (!currentUserId.value) return; 
+  
+  const q = query(appointmentsCollection); 
+  const currentUID = currentUserId.value; 
+
+  onSnapshot(q, (snapshot) => {
+    const fetchedAppointments = [];
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      const isUser = data.userId === currentUID; 
+      const counselor = counselors.value.find(c => c.id === data.counselorId);
+      
+      const startDate = data.start?.toDate ? data.start.toDate() : new Date(data.start);
+      const endDate = data.end?.toDate ? data.end.toDate() : new Date(data.end);
+
+      // 映射 Firestore 数据到 FullCalendar event 格式
+      fetchedAppointments.push({
+        id: doc.id, 
+        title: isUser 
+          ? `✓ Your Appointment - ${counselor ? counselor.name : 'Unknown'}`
+          : `Booked - ${counselor ? counselor.name : 'Unknown'}`,
+        start: startDate.toISOString(),
+        end: endDate.toISOString(),
+        backgroundColor: isUser ? '#0d6efd' : '#dc3545', 
+        borderColor: isUser ? '#0d6efd' : '#dc3545',
+        textColor: '#ffffff',
+        display: 'block',
+        extendedProps: {
+          counselorId: data.counselorId,
+          counselorName: counselor ? counselor.name : 'Unknown',
+          type: data.type,
+          notes: data.notes || '',
+          userId: data.userId, 
+          isUserAppointment: isUser,
+          isAvailable: false 
+        }
+      });
+    });
+
+    appointments.value = fetchedAppointments;
+    calendarOptions.value.events = fetchedAppointments;
+    announce('Appointments synchronized');
+  }, (error) => {
+    console.error("Firestore appointment subscription failed:", error);
+    announce('Error loading appointments');
+  });
+};
+
+
+// Helper functions (保持不变)
 const formatDate = (date) => {
   if (!date) return '';
   return new Date(date).toLocaleDateString('en-AU', {
@@ -496,8 +515,14 @@ const announce = (message) => {
   }, 3000);
 };
 
-// Handle date selection (defined before calendar options)
+// Handle date selection (处理日历上的空闲时间选择)
 const handleDateSelect = (selectInfo) => {
+  if (!currentUserId.value) {
+    announce('Please log in to book an appointment.');
+    alert('Please log in to book an appointment.');
+    return;
+  }
+  
   const start = selectInfo.start;
   const end = selectInfo.end;
   
@@ -516,11 +541,20 @@ const handleDateSelect = (selectInfo) => {
     return;
   }
   
-  // Default to first counselor if none selected
-  let counselor = selectedCounselorInfo.value;
-  if (!counselor) {
-    counselor = counselors.value[0];
+  // 检查所选时间段是否已被预定 (检查 appointments.value)
+  const isBooked = appointments.value.some(apt => {
+    const aptStart = new Date(apt.start);
+    const aptEnd = new Date(apt.end);
+    return (start < aptEnd && end > aptStart);
+  });
+
+  if (isBooked) {
+    announce('Selected time slot is already booked.');
+    alert('Selected time slot is already booked.');
+    return;
   }
+
+  let counselor = selectedCounselorInfo.value || counselors.value[0];
   
   bookingData.value = {
     counselorId: counselor.id,
@@ -535,50 +569,32 @@ const handleDateSelect = (selectInfo) => {
   announce('Booking form opened');
 };
 
-// Handle event click (defined before calendar options)
+// Handle event click (处理日历上的已有事件点击) (保持不变)
 const handleEventClick = (clickInfo) => {
   const event = clickInfo.event;
   
   if (event.extendedProps.isUserAppointment) {
-    // User's own appointment - show details
     selectedEvent.value = event;
     showDetailsModal.value = true;
     announce('Appointment details opened');
-  } else if (event.extendedProps.isAvailable) {
-    // Available slot - allow booking
-    const start = event.start;
-    const end = event.end;
-    
-    bookingData.value = {
-      counselorId: event.extendedProps.counselorId,
-      counselorName: event.extendedProps.counselorName,
-      start: start,
-      end: end,
-      type: 'individual',
-      notes: ''
-    };
-    
-    showBookingModal.value = true;
-    announce('Booking form opened for available slot');
   } else {
-    // Unavailable slot
-    announce('This time slot is not available');
-    alert('This time slot is already booked by another user');
+    announce('This is a booked appointment. You cannot view or modify it.');
+    alert('This slot is booked by another user.');
   }
 };
 
-// Selected counselor info
+// Selected counselor info (保持不变)
 const selectedCounselorInfo = computed(() => {
   if (!selectedCounselor.value) return null;
   return counselors.value.find(c => c.id === selectedCounselor.value);
 });
 
-// User's appointments
+// User's appointments (保持不变)
 const userAppointments = computed(() => {
-  return appointments.value.filter(apt => apt.isUserAppointment);
+  return appointments.value.filter(apt => apt.extendedProps.isUserAppointment);
 });
 
-// Check for booking conflicts
+// Check for booking conflicts (保持不变)
 const hasConflict = computed(() => {
   if (!bookingData.value.start || !bookingData.value.end) return false;
   
@@ -593,7 +609,8 @@ const hasConflict = computed(() => {
   });
 });
 
-// Calendar options
+
+// Calendar options (保持不变)
 const calendarOptions = ref({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin, listPlugin],
   initialView: 'timeGridWeek',
@@ -607,13 +624,13 @@ const calendarOptions = ref({
   allDaySlot: false,
   expandRows: true,
   height: 'auto',
-  selectable: true,
+  selectable: true, 
   selectMirror: true,
   select: handleDateSelect,
   eventClick: handleEventClick,
-  events: [],
+  events: [], 
   businessHours: {
-    daysOfWeek: [1, 2, 3, 4, 5], // Monday - Friday
+    daysOfWeek: [1, 2, 3, 4, 5], 
     startTime: '09:00',
     endTime: '17:00'
   },
@@ -621,178 +638,91 @@ const calendarOptions = ref({
   snapDuration: '00:30:00'
 });
 
-// Initialize with mock data
+// 🚨 MODIFIED: Initialize - 移除 onAuthStateChanged 的重复监听，改用 watch
 onMounted(() => {
-  generateMockAppointments();
-  announce('Calendar loaded successfully');
+  // 监控 currentUserId 的变化，以防用户在当前页面登录/登出
+  watch(currentUserId, (newUid) => {
+      if (newUid) {
+          subscribeToAppointments();
+          announce('User logged in. Appointments subscribing.');
+      } else {
+          // 清除数据
+          appointments.value = [];
+          calendarOptions.value.events = []; 
+          announce('User logged out. Appointments cleared.');
+      }
+  }, { immediate: true }); // immediate: true 确保在组件挂载时立即检查一次 UID
+
+  announce('Calendar mounted successfully');
 });
 
-// Generate mock appointments
-const generateMockAppointments = () => {
-  const now = new Date();
-  const mockAppointments = [];
-  
-  // Add some booked slots (unavailable) - with more visible colors
-  for (let i = 0; i < 8; i++) {
-    const date = new Date(now);
-    date.setDate(date.getDate() + Math.floor(Math.random() * 7));
-    date.setHours(9 + Math.floor(Math.random() * 8), 0, 0, 0);
-    
-    const counselor = counselors.value[Math.floor(Math.random() * counselors.value.length)];
-    
-    mockAppointments.push({
-      id: `apt-${i}`,
-      title: `Unavailable - ${counselor.name}`,
-      start: date.toISOString(),
-      end: new Date(date.getTime() + 60 * 60 * 1000).toISOString(),
-      backgroundColor: '#dc3545',
-      borderColor: '#dc3545',
-      textColor: '#ffffff',
-      display: 'block',
-      extendedProps: {
-        counselorId: counselor.id,
-        counselorName: counselor.name,
-        isUserAppointment: false,
-        isAvailable: false
-      }
-    });
-  }
-  
-  // Add user's existing appointment
-  const userDate = new Date(now);
-  userDate.setDate(userDate.getDate() + 2);
-  userDate.setHours(14, 0, 0, 0);
-  
-  mockAppointments.push({
-    id: 'user-apt-1',
-    title: '✓ Your Appointment - Dr. Sarah Johnson',
-    start: userDate.toISOString(),
-    end: new Date(userDate.getTime() + 60 * 60 * 1000).toISOString(),
-    backgroundColor: '#0d6efd',
-    borderColor: '#0d6efd',
-    textColor: '#ffffff',
-    display: 'block',
-    extendedProps: {
-      counselorId: 1,
-      counselorName: 'Dr. Sarah Johnson',
-      type: 'individual',
-      notes: 'Discussing anxiety management techniques',
-      isUserAppointment: true,
-      isAvailable: false
-    }
-  });
 
-  // Add another user appointment
-  const userDate2 = new Date(now);
-  userDate2.setDate(userDate2.getDate() + 4);
-  userDate2.setHours(10, 0, 0, 0);
-  
-  mockAppointments.push({
-    id: 'user-apt-2',
-    title: '✓ Your Appointment - Dr. Michael Chen',
-    start: userDate2.toISOString(),
-    end: new Date(userDate2.getTime() + 60 * 60 * 1000).toISOString(),
-    backgroundColor: '#0d6efd',
-    borderColor: '#0d6efd',
-    textColor: '#ffffff',
-    display: 'block',
-    extendedProps: {
-      counselorId: 2,
-      counselorName: 'Dr. Michael Chen',
-      type: 'individual',
-      notes: 'Follow-up session',
-      isUserAppointment: true,
-      isAvailable: false
-    }
-  });
-
-  // Add some available slots (shown in green)
-  for (let i = 0; i < 6; i++) {
-    const date = new Date(now);
-    date.setDate(date.getDate() + Math.floor(Math.random() * 7) + 1);
-    date.setHours(10 + i * 2, 0, 0, 0);
-    
-    const counselor = counselors.value[i % counselors.value.length];
-    
-    mockAppointments.push({
-      id: `available-${i}`,
-      title: `Available - ${counselor.name}`,
-      start: date.toISOString(),
-      end: new Date(date.getTime() + 60 * 60 * 1000).toISOString(),
-      backgroundColor: '#28a745',
-      borderColor: '#28a745',
-      textColor: '#ffffff',
-      display: 'block',
-      classNames: ['available-slot'],
-      extendedProps: {
-        counselorId: counselor.id,
-        counselorName: counselor.name,
-        isUserAppointment: false,
-        isAvailable: true
-      }
-    });
-  }
-  
-  appointments.value = mockAppointments;
-  calendarOptions.value.events = mockAppointments;
-};
-
-// Confirm booking
-const confirmBooking = () => {
-  if (hasConflict.value) {
-    announce('Cannot book - time conflict detected');
+// Confirm booking - 写入 Firestore (保持不变)
+const confirmBooking = async () => {
+  if (hasConflict.value || !currentUserId.value) {
+    if (!currentUserId.value) alert('Booking failed: You must be logged in.');
+    if (hasConflict.value) announce('Booking failed: Time conflict detected.');
     return;
   }
   
-  const newAppointment = {
-    id: `user-apt-${Date.now()}`,
-    title: `Your Appointment - ${bookingData.value.counselorName}`,
-    start: bookingData.value.start.toISOString(),
-    end: bookingData.value.end.toISOString(),
-    backgroundColor: '#0d6efd',
-    borderColor: '#0d6efd',
-    display: 'block',
-    extendedProps: {
-      counselorId: bookingData.value.counselorId,
-      counselorName: bookingData.value.counselorName,
-      type: bookingData.value.type,
-      notes: bookingData.value.notes,
-      isUserAppointment: true,
-      isAvailable: false
-    }
+  const counselor = counselors.value.find(c => c.id === bookingData.value.counselorId);
+
+  const newAppointmentDoc = {
+    userId: currentUserId.value, 
+    counselorId: bookingData.value.counselorId,
+    start: new Date(bookingData.value.start), 
+    end: new Date(bookingData.value.end),
+    type: bookingData.value.type,
+    notes: bookingData.value.notes,
+    counselorName: counselor.name,
+    createdAt: new Date()
   };
   
-  appointments.value.push(newAppointment);
-  calendarOptions.value.events = [...appointments.value];
-  
-  closeBookingModal();
-  announce('Appointment booked successfully');
-  alert('Appointment booked successfully!');
-};
-
-// Cancel appointment
-const cancelAppointment = (apt) => {
-  if (confirm('Are you sure you want to cancel this appointment?')) {
-    appointments.value = appointments.value.filter(a => a.id !== apt.id);
-    calendarOptions.value.events = [...appointments.value];
-    announce('Appointment cancelled');
+  try {
+    await addDoc(appointmentsCollection, newAppointmentDoc);
+    
+    closeBookingModal();
+    announce('Appointment booked successfully and saved!');
+    alert('Appointment booked successfully!');
+    
+  } catch (error) {
+    console.error("Error booking appointment:", error);
+    announce('Error booking appointment');
+    alert('Error booking appointment. Please check your network and Firebase rules.');
   }
 };
 
-// Cancel from modal
-const cancelAppointmentFromModal = () => {
-  if (selectedEvent.value) {
-    const aptId = selectedEvent.value.id;
-    if (confirm('Are you sure you want to cancel this appointment?')) {
-      appointments.value = appointments.value.filter(a => a.id !== aptId);
-      calendarOptions.value.events = [...appointments.value];
-      showDetailsModal.value = false;
-      announce('Appointment cancelled');
+// Cancel appointment - 删除 Firestore 文档 (保持不变)
+const cancelAppointment = async (apt) => {
+  if (!currentUserId.value || apt.extendedProps.userId !== currentUserId.value) {
+    announce('Error: You can only cancel your own appointments.');
+    return;
+  }
+  
+  if (confirm('Are you sure you want to cancel this appointment?')) {
+    try {
+      const docRef = doc(db, 'appointments', apt.id);
+      await deleteDoc(docRef);
+      
+      announce('Appointment cancelled successfully');
+      
+    } catch (error) {
+      console.error("Error cancelling appointment:", error);
+      announce('Error cancelling appointment');
+      alert('Error cancelling appointment. Check console for details.');
     }
   }
 };
 
-// Close booking modal
+// Cancel from modal (保持不变)
+const cancelAppointmentFromModal = () => {
+  if (selectedEvent.value) {
+    cancelAppointment(selectedEvent.value);
+    showDetailsModal.value = false;
+  }
+};
+
+// Close booking modal (保持不变)
 const closeBookingModal = () => {
   showBookingModal.value = false;
   bookingData.value = {
@@ -805,7 +735,7 @@ const closeBookingModal = () => {
   };
 };
 
-// Change calendar view
+// Change calendar view (保持不变)
 const changeView = () => {
   if (fullCalendar.value) {
     const calendarApi = fullCalendar.value.getApi();
@@ -814,27 +744,24 @@ const changeView = () => {
   }
 };
 
-// Load counselor schedule
+// Load counselor schedule (保持不变)
 const loadCounselorSchedule = () => {
   if (selectedCounselor.value) {
     const counselor = counselors.value.find(c => c.id === selectedCounselor.value);
     announce(`Showing schedule for ${counselor.name}`);
-  } else {
-    announce('Showing all counselors');
-  }
-  
-  // Filter events by counselor if selected
-  if (selectedCounselor.value) {
+    
     calendarOptions.value.events = appointments.value.filter(
       apt => apt.extendedProps.counselorId === selectedCounselor.value
     );
   } else {
+    announce('Showing all counselors');
     calendarOptions.value.events = [...appointments.value];
   }
 };
 </script>
 
 <style scoped>
+/* Styles remain unchanged */
 .skip-link {
   position: absolute;
   top: -40px;
